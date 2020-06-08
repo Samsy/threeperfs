@@ -25647,30 +25647,10 @@ function WebGLRenderer( parameters ) {
 
 	// Rendering
 
-	this.render = function ( scene, camera ) {
+	this.render = function ( scene, camera, forceDepthReset = true ) {
 
-		let renderTarget, forceClear;
+		let forceClear;
 
-		if ( arguments[ 2 ] !== undefined ) {
-
-			console.warn( 'THREE.WebGLRenderer.render(): the renderTarget argument has been removed. Use .setRenderTarget() instead.' );
-			renderTarget = arguments[ 2 ];
-
-		}
-
-		if ( arguments[ 3 ] !== undefined ) {
-
-			console.warn( 'THREE.WebGLRenderer.render(): the forceClear argument has been removed. Use .clear() instead.' );
-			forceClear = arguments[ 3 ];
-
-		}
-
-		if ( ! ( camera && camera.isCamera ) ) {
-
-			console.error( 'THREE.WebGLRenderer.render: camera is not an instance of THREE.Camera.' );
-			return;
-
-		}
 
 		if ( _isContextLost ) return;
 
@@ -25695,7 +25675,7 @@ function WebGLRenderer( parameters ) {
 		}
 
 		//
-		if ( scene.isScene ) scene.onBeforeRender( _this, scene, camera, renderTarget || _currentRenderTarget );
+		if ( scene.isScene ) scene.onBeforeRender( _this, scene, camera,  _currentRenderTarget );
 
 		currentRenderState = renderStates.get( scene, camera );
 		currentRenderState.init();
@@ -25734,12 +25714,6 @@ function WebGLRenderer( parameters ) {
 		//
 
 		if ( this.info.autoReset ) this.info.reset();
-
-		if ( renderTarget !== undefined ) {
-
-			this.setRenderTarget( renderTarget );
-
-		}
 
 		//
 
@@ -25789,10 +25763,15 @@ function WebGLRenderer( parameters ) {
 
 		// Ensure depth buffer writing is enabled so it can be cleared on next render
 
-		state.buffers.depth.setTest( true );
-		state.buffers.depth.setMask( true );
-		state.buffers.color.setMask( true );
+		// console.log('yolo')
 
+		if( forceDepthReset == true ){
+
+			state.buffers.depth.setTest( true );
+			state.buffers.depth.setMask( true );
+			state.buffers.color.setMask( true );
+		}
+		
 		state.setPolygonOffset( false );
 
 		// _gl.finish();
